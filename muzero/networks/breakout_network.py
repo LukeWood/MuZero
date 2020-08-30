@@ -4,7 +4,7 @@ import numpy as np
 from tensorflow.keras import regularizers
 from tensorflow.keras.layers import Dense, Conv2D, Flatten
 from tensorflow.keras.models import Sequential
-from tensorflow.keras import Regularizer
+from tensorflow.keras.regularizers import Regularizer
 
 from game.game import Action
 from networks.network import BaseNetwork
@@ -26,8 +26,7 @@ class BreakoutNetwork(BaseNetwork):
 
         regularizer = regularizers.l2(weight_decay)
 
-        representation_network = self._get_representation_network(
-            hidden_neurons, representation_size, regularizer)
+        representation_network = self._get_representation_network(representation_size, regularizer)
 
         value_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer),
                                     Dense(self.value_support_size, kernel_regularizer=regularizer)])
@@ -42,14 +41,14 @@ class BreakoutNetwork(BaseNetwork):
         super().__init__(representation_network, value_network,
                          policy_network, dynamic_network, reward_network)
 
-    def _get_representation_network(representation_size: int,
+    def _get_representation_network(self, representation_size: int,
                                     regularizer: Regularizer) -> Sequential:
         """ Constructs the representation network for breakout """
         model = Sequential()
         model.add(Conv2D(32, 8, strides=(4, 4),
-                         padding="valid", activation="relu", data_format="channels_first"))
+                         padding="same", activation="relu", data_format="channels_last"))
         model.add(Conv2D(64, 4, strides=(2, 2),
-                         padding="valid", activation="relu", data_format="channels_first"))
+                         padding="same", activation="relu", data_format="channels_last"))
         model.add(Flatten())
         model.add(Dense(256, activation='relu',
                         kernel_regularizer=regularizer))
