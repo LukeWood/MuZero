@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Dense, Conv2D
+from tensorflow.keras.layers import Dense, Conv2D, Flatten
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import Regularizer
 
@@ -25,13 +25,14 @@ class BreakoutNetwork(BaseNetwork):
         self.value_support_size = math.ceil(math.sqrt(max_value)) + 1
 
         regularizer = regularizers.l2(weight_decay)
-        representation_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer),
-                                             Dense(representation_size, activation=representation_activation,
-                                                   kernel_regularizer=regularizer)])
+
+        representation_network = self._get_representation_network(
+            hidden_neurons, representation_size, regularizer)
+
         value_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer),
                                     Dense(self.value_support_size, kernel_regularizer=regularizer)])
-        policy_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer),
-                                     Dense(action_size, kernel_regularizer=regularizer)])
+        policy_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer), Dense(
+            action_size, kernel_regularizer=regularizer)])
         dynamic_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer),
                                       Dense(representation_size, activation=representation_activation,
                                             kernel_regularizer=regularizer)])
@@ -41,14 +42,21 @@ class BreakoutNetwork(BaseNetwork):
         super().__init__(representation_network, value_network,
                          policy_network, dynamic_network, reward_network)
 
-    def _get_representation_network(hidden_neurons: int,
-                                    representation_size: int,
+    def _get_representation_network(representation_size: int,
                                     regularizer: Regularizer) -> Sequential:
         """ Constructs the representation network for breakout """
         model = Sequential()
-        model.add(Dense(hidden_neurons, activation='relu',
+        model.add(Conv2D(32, 8, strides=(4, 4),
+                         padding="valid", activation="relu", data_format="channels_first"))
+        model.add(Conv2D(64, 4, strides=(2, 2),
+                         padding="valid", activation="relu", data_format="channels_first"))
+        model.add(Flatten())
+        model.add(Dense(256, activation='relu',
                         kernel_regularizer=regularizer))
-        pass
+        # TODO change tanh to activation used in the paper minmax
+        model.add(Dense(representation_size, activation='tanh',
+                        kernel_regularizer=regularizer))
+        return model
 
     def _value_transform(self, value_support: np.array) -> float:
         """

@@ -1,22 +1,25 @@
 from typing import List
 
 import gym
+from gym.wrappers import GrayScaleObservation, ResizeObservation
 
 from game.game import Action, AbstractGame
 
 
-class CartPole(AbstractGame):
+class Breakout(AbstractGame):
     """The Gym CartPole environment"""
 
     def __init__(self, discount: float):
         super().__init__(discount)
         self.env = gym.make('BreakoutDeterministic-v4')
+        self.env = ResizeObservation(self.env, shape=(84, 84))
+        self.env = GrayScaleObservation(self.env, keep_dim=True)
         self.actions = list(
             map(lambda i: Action(i), range(self.env.action_space.n)))
         self.observations = [self.env.reset()]
         self.done = False
 
-    @property
+    @ property
     def action_space_size(self) -> int:
         """Return the size of the action space."""
         return len(self.actions)
