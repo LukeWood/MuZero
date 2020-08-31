@@ -26,7 +26,8 @@ class BreakoutNetwork(BaseNetwork):
 
         regularizer = regularizers.l2(weight_decay)
 
-        representation_network = self._get_representation_network(representation_size, regularizer)
+        representation_network = self._get_representation_network(
+            representation_size, regularizer)
 
         value_network = Sequential([Dense(hidden_neurons, activation='relu', kernel_regularizer=regularizer),
                                     Dense(self.value_support_size, kernel_regularizer=regularizer)])
@@ -45,7 +46,7 @@ class BreakoutNetwork(BaseNetwork):
                                     regularizer: Regularizer) -> Sequential:
         """ Constructs the representation network for breakout """
         model = Sequential()
-        model.add(Conv2D(32, 8, strides=(4, 4),
+        model.add(Conv2D(32, 3, strides=(1, 1),
                          padding="same", activation="relu", data_format="channels_last"))
         model.add(Conv2D(64, 4, strides=(2, 2),
                          padding="same", activation="relu", data_format="channels_last"))

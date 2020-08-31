@@ -1,12 +1,20 @@
+import argparse
+
 from config import MuZeroConfig, make_cartpole_config, make_breakout_config
 from networks.shared_storage import SharedStorage
 from self_play.self_play import run_selfplay, run_eval
 from training.replay_buffer import ReplayBuffer
 from training.training import train_network
 
-
 NUM_EVAL_EPISODES = 1
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--actor_threads', default=1, type=int,
+                    help='number of threads to run as data collecting actors')
+parser.add_argument('--persistence_file', default='')
+
+args = parser.parse_args()
 
 def muzero(config: MuZeroConfig):
     """
@@ -37,5 +45,5 @@ def muzero(config: MuZeroConfig):
 
 
 if __name__ == '__main__':
-    config = make_breakout_config()
+    config = make_cartpole_config()
     muzero(config)

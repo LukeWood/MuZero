@@ -11,6 +11,7 @@ class SharedStorage(object):
         self.current_network = network
         self.uniform_network = uniform_network
         self.optimizer = optimizer
+        self.save_network(0, network)
 
     def latest_network(self) -> AbstractNetwork:
         if self._networks:

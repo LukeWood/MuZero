@@ -11,7 +11,7 @@ from training.replay_buffer import ReplayBuffer
 
 
 def train_network(config: MuZeroConfig, storage: SharedStorage, replay_buffer: ReplayBuffer, epochs: int):
-    network = storage.current_network
+    network = storage.latest_network()
     optimizer = storage.optimizer
 
     for _ in range(epochs):
