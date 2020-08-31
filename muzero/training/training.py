@@ -32,7 +32,7 @@ def update_weights(optimizer: tf.keras.optimizers, network: BaseNetwork, batch):
         # Initial step, from the real observation: representation + prediction networks
         representation_batch, value_batch, policy_batch = network.initial_model(
             np.array(image_batch, dtype='float32'))
-        
+
         # Only update the element with a policy target
         target_value_batch, _, target_policy_batch = zip(*targets_init_batch)
         mask_policy = list(map(lambda l: bool(l), target_policy_batch))
@@ -96,7 +96,8 @@ def update_weights(optimizer: tf.keras.optimizers, network: BaseNetwork, batch):
 def loss_value(target_value_batch, value_batch, value_support_size: int):
     batch_size = len(target_value_batch)
     targets = np.zeros((batch_size, value_support_size))
-    sqrt_value = np.sqrt(target_value_batch)
+    # TODO support negative values
+    sqrt_value = np.nan_to_num(np.sqrt(target_value_batch))
     floor_value = np.floor(sqrt_value).astype(int)
     rest = sqrt_value - floor_value
     targets[range(batch_size), floor_value.astype(int)] = 1 - rest
